@@ -1,0 +1,1554 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>ItzJusTragic - Portfolio</title>
+  <meta name="description" content="My Portfolio - Mod & Clipper Applications"/>
+  <link rel="icon" href="https://github.com/itsjustragic/social/raw/main/tr.png" type="image/png">
+  <link rel="preconnect" href="https://img.icons8.com" crossorigin>
+
+  <style>
+  :root{
+    --bg:#000000;
+    --neon:#00ff6a;
+    --neon-dim:#00994b;
+    --muted:#6b6b6b;
+    --card-bg:rgba(0,0,0,0.6);
+    --glass: rgba(20, 30, 20, 0.55);
+    --accent: #00ff6a;
+    --glass-border: rgba(0,255,106,0.06);
+    --soft-white: rgba(255,255,255,0.92);
+    --shadow: rgba(0, 255, 106, 0.08);
+    --glass-glow: rgba(0,255,106,0.14);
+    --card-max-width: 800px;
+    --card-padding: 20px;
+    --avatar-size: 72px;
+  }
+
+  @font-face { font-family: "XTerminus"; src: local("Consolas"), local("Courier New"), local("monospace"); }
+
+  html,body{ 
+    min-height:100dvh; 
+    height:auto; 
+    margin:0; 
+    padding:0; 
+    background:var(--bg); 
+    color:var(--soft-white); 
+    font-family: "XTerminus", monospace; 
+    -webkit-font-smoothing:antialiased; 
+    -moz-osx-font-smoothing:grayscale; 
+    overflow:auto; 
+    -webkit-text-size-adjust:100%; 
+  }
+
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    pointer-events:none;
+    background:
+      radial-gradient(1200px 600px at 50% 44%, rgba(0,255,106,0.03), transparent 30%),
+      repeating-linear-gradient(90deg, rgba(0,255,106,0.006) 0 1px, transparent 1px 28px),
+      linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.75));
+    mix-blend-mode: screen;
+    opacity:0.9;
+  }
+
+  #app { 
+    position:relative; 
+    min-height:100dvh; 
+    width:100%; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+    flex-direction:column; 
+    gap:12px; 
+    padding: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)); 
+    box-sizing:border-box; 
+  }
+
+  #matrix { 
+    position:fixed; 
+    inset:0; 
+    z-index:0; 
+    width:100%; 
+    height:100%; 
+    display:block; 
+    mix-blend-mode:screen; 
+    opacity:1; 
+    transition:opacity 420ms ease; 
+    pointer-events:none; 
+    background: transparent; 
+  }
+
+  .crt-overlay { 
+    pointer-events:none; 
+    position:fixed; 
+    inset:0; 
+    z-index:2; 
+    mix-blend-mode:overlay; 
+    opacity:1; 
+    transition:opacity 420ms ease; 
+  }
+  .crt-overlay:before{ 
+    content:""; 
+    position:absolute; 
+    inset:0; 
+    background:radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 100%); 
+    opacity:0.85; 
+  }
+  .scanlines { 
+    position:absolute; 
+    inset:0; 
+    background-image: linear-gradient(transparent 88%, rgba(0,0,0,0.28) 100%); 
+    background-size: 100% 2px; 
+    opacity:0.12; 
+    mix-blend-mode:overlay; 
+  }
+  .center-glow { 
+    position:absolute; 
+    width:70vw; 
+    height:70vh; 
+    left:50%; 
+    top:50%; 
+    transform:translate(-50%, -50%); 
+    background: radial-gradient(circle at center, rgba(0,255,106,0.06), transparent 40%); 
+    filter:blur(28px); 
+    opacity:0.9; 
+  }
+
+  .card { 
+    position:relative; 
+    z-index:3; 
+    width:min(var(--card-max-width), 92%); 
+    max-width:var(--card-max-width); 
+    min-width:260px; 
+    padding:var(--card-padding); 
+    box-sizing:border-box; 
+    border-radius:18px; 
+    background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.45)); 
+    border:1px solid rgba(0,255,106,0.08); 
+    box-shadow: 0 10px 40px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.02); 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center; 
+    gap:12px; 
+    backdrop-filter: blur(8px) saturate(120%); 
+    transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms, opacity 360ms ease, transform 360ms ease; 
+    opacity:0; 
+    transform: translateY(12px) scale(0.996); 
+    pointer-events:none; 
+  }
+
+  .card.revealed { opacity:1; transform:none; pointer-events:auto; }
+
+  /* Tab Navigation */
+  .tabs { 
+    width:100%; 
+    display:flex; 
+    gap:6px; 
+    justify-content:center; 
+    margin-bottom:6px; 
+    border-bottom:1px solid rgba(0,255,106,0.08); 
+    padding-bottom:8px; 
+  }
+
+  .tab-btn { 
+    padding:8px 16px; 
+    background:rgba(0,0,0,0.2); 
+    border:1px solid rgba(0,255,106,0.06); 
+    border-radius:8px; 
+    color:var(--muted); 
+    font-family:"XTerminus", monospace; 
+    font-size:12px; 
+    cursor:pointer; 
+    transition:all 200ms ease; 
+    text-transform:uppercase; 
+    letter-spacing:1px; 
+    position:relative; 
+    overflow:hidden; 
+  }
+
+  .tab-btn::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg, transparent, rgba(0,255,106,0.1), transparent);
+    transform:translateX(-100%);
+    transition:transform 0.6s ease;
+  }
+
+  .tab-btn:hover::before {
+    transform:translateX(100%);
+  }
+
+  .tab-btn.active { 
+    color:var(--neon); 
+    border-color:rgba(0,255,106,0.2); 
+    background:rgba(0,255,106,0.05); 
+    box-shadow:0 0 12px rgba(0,255,106,0.1); 
+  }
+
+  .tab-content { 
+    display:none; 
+    width:100%; 
+    animation:fadeIn 0.4s ease; 
+  }
+
+  .tab-content.active { 
+    display:block; 
+  }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(8px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  .header { 
+    width:100%; 
+    display:flex; 
+    gap:8px; 
+    align-items:center; 
+    justify-content:center; 
+    flex-direction:column; 
+  }
+  .avatar { 
+    width:var(--avatar-size); 
+    height:var(--avatar-size); 
+    border-radius:12px; 
+    overflow:hidden; 
+    border:2px solid rgba(0,255,106,0.12); 
+    box-shadow: 0 4px 20px rgba(0,255,106,0.04), 0 0 30px rgba(0,255,106,0.1); 
+    animation:avatarGlow 3s ease-in-out infinite; 
+  }
+
+  @keyframes avatarGlow {
+    0%, 100% { box-shadow: 0 4px 20px rgba(0,255,106,0.04), 0 0 30px rgba(0,255,106,0.1); }
+    50% { box-shadow: 0 4px 20px rgba(0,255,106,0.12), 0 0 40px rgba(0,255,106,0.2); }
+  }
+
+  .avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+  .title { 
+    display:flex; 
+    align-items:center; 
+    gap:8px; 
+    color:var(--neon); 
+    letter-spacing:1px; 
+    font-size:clamp(16px, 2.8vw, 24px); 
+    text-shadow: 0 0 10px rgba(0,255,106,0.26), 0 0 24px rgba(0,255,106,0.06); 
+    margin-top:4px; 
+    justify-content:center; 
+  }
+  .subtitle { 
+    color:var(--muted); 
+    font-size:11px; 
+    letter-spacing:2px; 
+    text-transform:uppercase; 
+    margin-top:2px; 
+    opacity:0.8; 
+  }
+  .icon-row { display:flex; gap:10px; align-items:center; justify-content:center; opacity:0.95; margin-top: 4px !important; }
+
+  .links { 
+    width:100%; 
+    display:flex; 
+    gap:8px; 
+    align-items:center; 
+    justify-content:center; 
+    flex-direction:column; 
+    padding:4px 8px; 
+    max-height: calc(100dvh - 260px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+
+  .link { 
+    width:100%; 
+    max-width:720px; 
+    display:flex; 
+    align-items:center; 
+    gap:10px; 
+    padding:10px 14px; 
+    border-radius:10px; 
+    background: linear-gradient(180deg, rgba(0,0,0,0.34), rgba(0,0,0,0.12)); 
+    border:1px solid rgba(0,255,106,0.04); 
+    box-shadow: 0 6px 22px rgba(0,0,0,0.4); 
+    transition: transform 160ms, box-shadow 160ms, opacity 420ms, border-color 160ms; 
+    cursor:pointer; 
+    text-decoration:none; 
+    color:var(--soft-white); 
+    opacity:0; 
+    transform: translateY(8px); 
+    touch-action: manipulation; 
+    position:relative;
+    overflow:hidden;
+  }
+
+  .link::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg, transparent, rgba(0,255,106,0.05), transparent);
+    transform:translateX(-100%);
+    transition:transform 0.5s ease;
+  }
+
+  .link:hover::before {
+    transform:translateX(100%);
+  }
+
+  .link.revealed { opacity:1; transform:none; }
+  .link:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 20px 50px rgba(0,255,106,0.06); 
+    border-color: rgba(0,255,106,0.12); 
+  }
+  .link .icon { 
+    width:36px; 
+    height:36px; 
+    border-radius:8px; 
+    background:rgba(0,0,0,0.4); 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+    border:1px solid rgba(255,255,255,0.02); 
+    overflow:hidden; 
+  }
+  .link .icon img { 
+    width:22px; 
+    height:22px; 
+    object-fit:contain; 
+    filter: drop-shadow(0 0 2px rgba(0,255,106,0.24)); 
+  }
+  .link .meta { 
+    display:flex; 
+    flex-direction:column; 
+    align-items:flex-start; 
+    gap:1px; 
+  }
+  .link .meta .label { 
+    font-size:13px; 
+    color:var(--neon); 
+    text-shadow: 0 0 6px rgba(0,255,106,0.18); 
+  }
+  .link .meta .desc { 
+    font-size:11px; 
+    color:var(--muted); 
+    opacity:0.95; 
+    letter-spacing:0.2px; 
+  }
+
+  /* Application Form Styles */
+  .app-form {
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:16px;
+    background:rgba(0,0,0,0.2);
+    border-radius:12px;
+    border:1px solid rgba(0,255,106,0.06);
+  }
+
+  .form-group {
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .form-label {
+    color:var(--neon);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    text-shadow:0 0 6px rgba(0,255,106,0.2);
+  }
+
+  .form-input, .form-textarea {
+    padding:10px 12px;
+    background:rgba(0,0,0,0.4);
+    border:1px solid rgba(0,255,106,0.08);
+    border-radius:8px;
+    color:var(--soft-white);
+    font-family:"XTerminus", monospace;
+    font-size:13px;
+    transition:all 200ms ease;
+  }
+
+  .form-input:focus, .form-textarea:focus {
+    outline:none;
+    border-color:rgba(0,255,106,0.2);
+    box-shadow:0 0 12px rgba(0,255,106,0.1);
+    background:rgba(0,0,0,0.5);
+  }
+
+  .form-textarea {
+    min-height:80px;
+    resize:vertical;
+  }
+
+  .form-submit {
+    padding:12px 20px;
+    background:linear-gradient(180deg, rgba(0,255,106,0.15), rgba(0,255,106,0.08));
+    border:1px solid rgba(0,255,106,0.2);
+    border-radius:8px;
+    color:var(--neon);
+    font-family:"XTerminus", monospace;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    cursor:pointer;
+    transition:all 200ms ease;
+    text-shadow:0 0 8px rgba(0,255,106,0.3);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .form-submit::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg, transparent, rgba(0,255,106,0.2), transparent);
+    transform:translateX(-100%);
+    transition:transform 0.6s ease;
+  }
+
+  .form-submit:hover::before {
+    transform:translateX(100%);
+  }
+
+  .form-submit:hover {
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px rgba(0,255,106,0.15);
+    border-color:rgba(0,255,106,0.3);
+  }
+
+  .form-submit:active {
+    transform:translateY(0);
+  }
+
+  .info-banner {
+    padding:10px 14px;
+    background:rgba(0,255,106,0.08);
+    border:1px solid rgba(0,255,106,0.15);
+    border-radius:10px;
+    color:var(--neon);
+    font-size:12px;
+    text-align:center;
+    margin-bottom:12px;
+    text-shadow:0 0 8px rgba(0,255,106,0.2);
+    animation:pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity:0.9; }
+    50% { opacity:1; }
+  }
+
+  .utils { 
+    width:100%; 
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+    gap:8px; 
+    margin-top:4px; 
+  }
+  .player { display:flex; align-items:center; gap:8px; background:transparent; }
+
+  .volume { 
+    width:180px; 
+    display:flex; 
+    align-items:center; 
+    gap:8px; 
+    padding:4px 6px; 
+    border-radius:10px; 
+    border:1px solid rgba(255,255,255,0.02); 
+    background: linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.12)); 
+  }
+  .volume input[type=range] { 
+    -webkit-appearance:none; 
+    appearance:none; 
+    width:110px; 
+    height:4px; 
+    background:linear-gradient(90deg, rgba(0,255,106,0.95) 0%, rgba(0,255,106,0.38) 60%, rgba(255,255,255,0.06) 100%); 
+    border-radius:6px; 
+    outline:none; 
+  }
+  .volume input[type=range]::-webkit-slider-thumb { 
+    -webkit-appearance:none; 
+    width:12px; 
+    height:12px; 
+    border-radius:10px; 
+    background:var(--neon); 
+    box-shadow:0 2px 8px rgba(0,255,106,0.24); 
+    border: 2px solid rgba(0,0,0,0.6); 
+  }
+
+  .footer { 
+    width:100%; 
+    display:flex; 
+    align-items:center; 
+    justify-content:space-between; 
+    gap:8px; 
+    color:var(--muted); 
+    font-size:11px; 
+    margin-top:4px; 
+    flex-wrap:wrap;
+  }
+
+  .footer a#copyCard, .footer a#toggleRain { 
+    display:inline-block; 
+    padding:6px 10px; 
+    border-radius:8px; 
+    border:1px solid rgba(0,255,106,0.08); 
+    background:rgba(0,0,0,0.12); 
+    color:var(--muted); 
+    text-decoration:none; 
+    transition: border-color 140ms, color 140ms, transform 100ms; 
+  }
+  .footer a#copyCard:hover, .footer a#toggleRain:hover { 
+    border-color: rgba(0,255,106,0.16); 
+    color:var(--neon); 
+    transform:translateY(-2px); 
+  }
+
+  :root { --neon: #00ff6a; --neon-rgba: 0,255,106; }
+
+  .card .title, .card .subtitle { 
+    color: var(--neon); 
+    text-shadow: 
+      0 0 2px rgba(var(--neon-rgba), 1), 
+      0 0 8px rgba(var(--neon-rgba), 0.85), 
+      0 0 18px rgba(var(--neon-rgba), 0.45), 
+      0 0 36px rgba(var(--neon-rgba), 0.18); 
+    -webkit-text-stroke: 0.4px rgba(0,0,0,0.15); 
+  }
+
+  .card .icon-row svg path { 
+    stroke: rgba(var(--neon-rgba), 0.75); 
+    filter: drop-shadow(0 0 6px rgba(var(--neon-rgba), 0.22)); 
+  }
+
+  .card .avatar { 
+    box-shadow: 0 0 12px rgba(var(--neon-rgba), 0.08), inset 0 0 6px rgba(var(--neon-rgba), 0.03); 
+  }
+
+  #loadingOverlay { 
+    position:fixed; 
+    inset:0; 
+    z-index:9998; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+    flex-direction:column;
+    background:linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.95)); 
+    font-family: "XTerminus", monospace;
+    color:var(--neon);
+  }
+
+  #loadingText {
+    font-size:18px;
+    text-shadow: 0 0 10px rgba(0,255,106,0.5), 0 0 20px rgba(0,255,106,0.3);
+    letter-spacing:2px;
+    text-align:center;
+    line-height:1.8;
+  }
+
+  #loadingCursor {
+    display:inline-block;
+    width:2px;
+    height:20px;
+    background:var(--neon);
+    margin-left:4px;
+    animation:blink 1s infinite;
+    box-shadow: 0 0 8px rgba(0,255,106,0.8);
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity:1; }
+    51%, 100% { opacity:0; }
+  }
+
+  .hidden { display:none !important; opacity:0 !important; pointer-events:none !important; }
+
+  /* Mobile-specific tweaks */
+  @media (max-width: 640px){
+    :root { --card-padding: 14px; --avatar-size: 64px; }
+    .volume { width:140px; }
+    .link { padding:8px 12px; gap:8px; border-radius:8px; }
+    .icon-row { margin-top:4px !important; }
+    .title { font-size:18px; margin-top: 2px; }
+    .footer { font-size:10px; flex-direction:column; align-items:center; margin-top: 2px; }
+    .card { border-radius:12px; padding:12px; }
+    .player { gap:6px; }
+    .volume input[type=range] { width:90px; }
+    .links { max-height: calc(100dvh - 220px); }
+    .tabs { flex-wrap:wrap; gap:4px; padding-bottom: 6px; }
+    .tab-btn { padding:6px 12px; font-size:11px; }
+    .app-form { padding:12px; gap: 10px; }
+    .form-input, .form-textarea { padding: 8px 10px; font-size: 12px; }
+  }
+
+  @media (hover: none) {
+    .link:hover { transform:none; box-shadow:none; }
+    .link { padding:14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .title { animation: none !important; transition: none !important; }
+    .card, .link { transition: none !important; }
+    #matrix { transition: none !important; }
+    .avatar { animation: none !important; }
+    .info-banner { animation: none !important; }
+  }
+
+  @keyframes neonPulse { 
+    0% { text-shadow: 0 0 6px rgba(0,255,106,0.08), 0 0 16px rgba(0,255,106,0.03); transform: scale(1); } 
+    50% { text-shadow: 0 0 12px rgba(0,255,106,0.18), 0 0 28px rgba(0,255,106,0.08); transform: scale(1.02); } 
+    100% { text-shadow: 0 0 6px rgba(0,255,106,0.08), 0 0 16px rgba(0,255,106,0.03); transform: scale(1); } 
+  }
+  .title { animation: neonPulse 3.6s infinite linear; }
+  .link:focus { outline:2px dashed rgba(0,255,106,0.14); outline-offset:4px; }
+  </style>
+</head>
+<body>
+<div id="app" role="main" aria-label="Streamer Portfolio">
+  <canvas id="matrix" aria-hidden="true"></canvas>
+
+  <div class="crt-overlay" aria-hidden="true">
+    <div class="scanlines"></div>
+    <div class="center-glow"></div>
+  </div>
+
+  <main class="card" role="region" aria-label="Profile card">
+    <header class="header">
+      <div class="avatar" title="Avatar">
+        <img src="https://github.com/itsjustragic/social/raw/main/IMG_9623.jpg" alt="avatar"/>
+      </div>
+      <div class="title">ItzJusTragic</div>
+      <div class="subtitle">Streamer &amp; Content Creator</div>
+
+      <div class="icon-row" style="margin-top:8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.2" d="M3 12h18"></path>
+        </svg>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="socials">Socials</button>
+      <button class="tab-btn" data-tab="mod-app">Mod Application</button>
+      <button class="tab-btn" data-tab="clipper-app">Clipper Application</button>
+    </div>
+
+    <!-- Socials Tab -->
+    <div id="socials" class="tab-content active">
+      <section class="links" aria-label="Links">
+        <a class="link" href="https://twitch.tv/itzjustragic" target="_blank" rel="noopener" data-copy="https://twitch.tv/itzjustragic">
+          <div class="icon"><img src="https://img.icons8.com/ios-filled/50/00ff00/twitch.png" alt="Twitch icon"/></div>
+          <div class="meta">
+            <div class="label">Twitch</div>
+            <div class="desc">Live streams</div>
+          </div>
+        </a>
+
+        <a class="link" href="https://instagram.com/itsjustragic" target="_blank" rel="noopener" data-copy="https://instagram.com/itsjustragic">
+          <div class="icon"><img src="https://img.icons8.com/ios-filled/50/00ff00/instagram-new.png" alt="Instagram icon"/></div>
+          <div class="meta">
+            <div class="label">Instagram</div>
+            <div class="desc">@itsjustragic</div>
+          </div>
+        </a>
+
+        <a class="link" href="https://www.tiktok.com/@itsjustragic" target="_blank" rel="noopener" data-copy="https://www.tiktok.com/@itsjustragic">
+          <div class="icon"><img src="https://img.icons8.com/ios-filled/50/00ff00/tiktok.png" alt="TikTok icon"/></div>
+          <div class="meta">
+            <div class="label">TikTok</div>
+            <div class="desc">@itsjustragic</div>
+          </div>
+        </a>
+
+        <a class="link" href="https://www.youtube.com/@ItsJusTragic" target="_blank" rel="noopener" data-copy="https://www.youtube.com/@ItsJusTragic">
+          <div class="icon"><img src="https://img.icons8.com/ios-filled/50/00ff00/youtube-play.png" alt="YouTube icon"/></div>
+          <div class="meta">
+            <div class="label">YouTube</div>
+            <div class="desc">@ItsJusTragic</div>
+          </div>
+        </a>
+
+        <a class="link" href="https://twitter.com/itsjustragic" target="_blank" rel="noopener" data-copy="https://twitter.com/itsjustragic">
+          <div class="icon"><img src="https://img.icons8.com/ios-filled/50/00ff00/twitter.png" alt="Twitter icon"/></div>
+          <div class="meta">
+            <div class="label">Twitter</div>
+            <div class="desc">@itsjustragic</div>
+          </div>
+        </a>
+
+        <a class="link" href="https://discord.gg/Jg7FGGhmSH" target="_blank" rel="noopener" data-copy="https://discord.gg/Jg7FGGhmSH">
+          <div class="icon"><img src="https://img.icons8.com/ios-filled/50/00ff00/discord-logo.png" alt="Discord icon"/></div>
+          <div class="meta">
+            <div class="label">Discord</div>
+            <div class="desc">Join the server</div>
+          </div>
+        </a>
+      </section>
+    </div>
+
+    <!-- Mod Application Tab -->
+    <div id="mod-app" class="tab-content">
+      <div class="info-banner">
+        ⚡ Join our moderation team and help maintain a positive community
+      </div>
+      <form class="app-form" id="modForm">
+        <div class="form-group">
+          <label class="form-label" for="mod-username">Username</label>
+          <input type="text" id="mod-username" class="form-input" required placeholder="Your username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mod-experience">Moderation Experience</label>
+          <textarea id="mod-experience" class="form-textarea" required placeholder="Tell us about your moderation experience..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mod-availability">Availability</label>
+          <input type="text" id="mod-availability" class="form-input" required placeholder="Hours per week / Timezone">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mod-reason">Why do you want to be a mod?</label>
+          <textarea id="mod-reason" class="form-textarea" required placeholder="Share your motivation..."></textarea>
+        </div>
+        <button type="submit" class="form-submit">Submit Application</button>
+      </form>
+    </div>
+
+    <!-- Clipper Application Tab -->
+    <div id="clipper-app" class="tab-content">
+      <div class="info-banner">
+        💰 Clippers get paid! Create highlights and earn rewards for quality content
+      </div>
+      <form class="app-form" id="clipperForm">
+        <div class="form-group">
+          <label class="form-label" for="clipper-username">Username</label>
+          <input type="text" id="clipper-username" class="form-input" required placeholder="Your username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="clipper-portfolio">Portfolio / Examples</label>
+          <textarea id="clipper-portfolio" class="form-textarea" required placeholder="Links to your previous clips or content..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="clipper-platforms">Platforms</label>
+          <input type="text" id="clipper-platforms" class="form-input" required placeholder="YouTube, TikTok, Twitter, etc.">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="clipper-style">Editing Style</label>
+          <textarea id="clipper-style" class="form-textarea" required placeholder="Describe your editing style and what makes your clips unique..."></textarea>
+        </div>
+        <button type="submit" class="form-submit">Submit Application</button>
+      </form>
+    </div>
+
+    <div class="utils" aria-hidden="false">
+      <div class="badges" style="display:none"></div>
+
+      <div class="player" aria-label="Audio player">
+        <audio id="bg-audio" preload="auto" playsinline loop>
+          Your browser does not support the audio element.
+        </audio>
+
+        <div class="volume" title="Set volume">
+          <svg width="18" height="18" viewBox="0 0 24 24" style="opacity:0.9;"><path fill="var(--neon)" d="M3 10v4h4l5 4V6L7 10H3z"></path></svg>
+          <input id="volumeSlider" aria-label="Volume slider" type="range" min="0" max="1" step="0.01" value="0.32"/>
+          <div id="volLabel" style="font-size:12px;color:var(--muted);min-width:36px;text-align:right;">32%</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer" role="contentinfo">
+      <div>Cooked by <span style="color:var(--neon)">crownedapex</span></div>
+      <div>
+        <a href="#" id="copyCard" title="Copy profile link">Copy link</a> •
+        <a href="#" id="toggleRain" title="Toggle matrix rain">Toggle rain</a>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<div id="loadingOverlay">
+  <div id="loadingText"></div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'S'))) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  let _dt = {open: false, orientation: null};
+  const _th = 160;
+  setInterval(function() {
+    if (window.outerHeight - window.innerHeight > _th || 
+        window.outerWidth - window.innerWidth > _th) {
+      if (!_dt.open) {
+        _dt.open = true;
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#00ff6a;font-family:monospace;font-size:24px;">Access Denied</div>';
+      }
+    } else {
+      _dt.open = false;
+    }
+  }, 500);
+
+  const _n = () => {};
+  const _m = ['log', 'debug', 'info', 'warn', 'error', 'assert', 'dir', 'dirxml', 'group', 'groupEnd', 'time', 'timeEnd', 'count', 'trace', 'profile', 'profileEnd'];
+  _m.forEach(method => {
+    window.console[method] = _n;
+  });
+
+  Object.defineProperty(window, 'eval', {
+    value: function() { return null; },
+    writable: false
+  });
+})();
+
+/* Configuration data handler */
+const _k0x7a = 'TragicStream2024!SecureKey#Matrix';
+function _x0p3q(text) {
+  let _r = '';
+  for (let i = 0; i < text.length; i++) {
+    const _c = text.charCodeAt(i);
+    const _kc = _k0x7a.charCodeAt(i % _k0x7a.length);
+    _r += String.fromCharCode(_c ^ _kc);
+  }
+  return btoa(_r);
+}
+
+function _d9m2w(_e) {
+  try {
+    const _t = atob(_e);
+    let _r = '';
+    for (let i = 0; i < _t.length; i++) {
+      const _c = _t.charCodeAt(i);
+      const _kc = _k0x7a.charCodeAt(i % _k0x7a.length);
+      _r += String.fromCharCode(_c ^ _kc);
+    }
+    return _r;
+  } catch (e) {
+    return null;
+  }
+}
+
+const _cfg_data = 'PAYVFxpZfFsWDBIOXUJWGkI8CEwUAgxkEhxBJQ4bGRpXZUZXU1FVZENFVFdYBAYLDRhrXUwGOhAOD05BIzszH1EZDD0JHyghORI8CCBYcHxhWk4wE1AQQRR4AA1GOwwcPiYBPx0INBATIzccUxMjClUEXUhkMAgtNw==';
+
+function _g4t_cfg() {
+  if (!_cfg_data || _cfg_data.length < 10) {
+    return null;
+  }
+  return _d9m2w(_cfg_data);
+}
+
+/* Utilities */
+const $ = (sel, ctx=document) => ctx.querySelector(sel);
+const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+
+/* Mobile/Touch Detection */
+const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+const ua = navigator.userAgent || '';
+const isMobileUA = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(ua);
+const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const saveData = navigator.connection && (navigator.connection.saveData === true);
+
+const UI_CONSTRAINTS = {
+  reducedMotion: prefersReducedMotion,
+  lowPower: saveData || isMobileUA,
+  touch: isTouchDevice,
+};
+
+/* Tab System */
+(function tabSystem() {
+  const tabBtns = $$('.tab-btn');
+  const tabContents = $$('.tab-content');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.dataset.tab;
+      
+      // Update active states
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabContents.forEach(c => c.classList.remove('active'));
+      
+      btn.classList.add('active');
+      const targetContent = $(`#${targetTab}`);
+      if (targetContent) {
+        targetContent.classList.add('active');
+      }
+    });
+  });
+})();
+
+/* Application Form Handlers */
+(function applicationForms() {
+  function showToast(msg, duration = 2800) {
+    let toast = $('#bio-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'bio-toast';
+      toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);border:1px solid rgba(0,255,106,0.06);color:var(--neon);padding:8px 12px;border-radius:8px;z-index:9999;font-family:monospace;transition:opacity 0.3s;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    setTimeout(() => { toast.style.opacity = '0'; }, duration);
+  }
+
+  function submitApplication(formId, formData) {
+    const _url = _g4t_cfg();
+    if (!_url) {
+      showToast('Application system not configured', 3000);
+      return;
+    }
+
+    const payload = {
+      content: `**New ${formId === 'modForm' ? 'Mod' : 'Clipper'} Application**\n\`\`\`json\n${JSON.stringify(formData, null, 2)}\n\`\`\``
+    };
+
+    fetch(_url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      showToast('Application submitted successfully!', 3000);
+      document.getElementById(formId).reset();
+    })
+    .catch(() => {
+      showToast('Failed to submit application. Please try again.', 3000);
+    });
+  }
+
+  $('#modForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = {
+      type: 'Mod Application',
+      username: $('#mod-username').value,
+      experience: $('#mod-experience').value,
+      availability: $('#mod-availability').value,
+      reason: $('#mod-reason').value,
+      timestamp: new Date().toISOString()
+    };
+    submitApplication('modForm', formData);
+  });
+
+  $('#clipperForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = {
+      type: 'Clipper Application',
+      username: $('#clipper-username').value,
+      portfolio: $('#clipper-portfolio').value,
+      platforms: $('#clipper-platforms').value,
+      style: $('#clipper-style').value,
+      timestamp: new Date().toISOString()
+    };
+    submitApplication('clipperForm', formData);
+  });
+})();
+
+/* Enhanced Matrix Rain Animation */
+(function matrixRain(){
+  const canvas = document.getElementById('matrix');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const chars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネへメレゲゼデベペオォコソトノホモヨョロヲゴゾドボポ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%^&*()<>/[]{}+-=';
+  let dpr = Math.max(1, window.devicePixelRatio || 1);
+
+  function computeFontSize(){
+    let base = (window.innerWidth <= 420) ? 12 : 16;
+    if(UI_CONSTRAINTS.lowPower) base = Math.max(10, Math.floor(base * 0.85));
+    return Math.max(10, base);
+  }
+
+  let fontSize = computeFontSize();
+  let width, height, columns;
+  let drops = [];
+  let animationId = null;
+  let running = false;
+
+  function setupSize(){
+    fontSize = computeFontSize();
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    width = Math.floor(innerWidth);
+    height = Math.floor(innerHeight);
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.textBaseline = 'top';
+    ctx.font = fontSize + 'px monospace';
+    columns = Math.floor(width / fontSize) + 2;
+    drops = new Array(columns).fill(0).map(()=>Math.floor(Math.random()*height/fontSize));
+  }
+  setupSize();
+  addEventListener('resize', () => { setupSize(); drawStaticBackground(); });
+
+  function drawStaticBackground(){
+    ctx.clearRect(0,0,width,height);
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0,0,width,height);
+
+    ctx.font = fontSize + 'px monospace';
+    const density = UI_CONSTRAINTS.lowPower ? 0.06 : 0.10;
+    for(let x=0;x<columns;x++){
+      if(Math.random() > density) continue;
+      const count = Math.floor(Math.random()*6)+3;
+      const xpos = x * fontSize;
+      for(let j=0;j<count;j++){
+        const ypos = (j * fontSize * (Math.random()*1.8 + 0.8)) + (Math.random()*height*0.02);
+        const char = chars.charAt(Math.floor(Math.random()*chars.length));
+        const alpha = 0.04 + Math.random()*0.03;
+        ctx.fillStyle = `rgba(0,255,106,${alpha})`;
+        ctx.fillText(char, xpos, ypos);
+      }
+      if(Math.random() > 0.92){
+        const highlightY = Math.floor(Math.random()*height);
+        ctx.fillStyle = `rgba(0,255,106,${0.42 + Math.random()*0.18})`;
+        ctx.fillText(chars.charAt(Math.floor(Math.random()*chars.length)), xpos, highlightY);
+      }
+    }
+    const g = ctx.createLinearGradient(0,0,0,height);
+    g.addColorStop(0,'rgba(0,0,0,0.08)');
+    g.addColorStop(0.5,'rgba(0,0,0,0)');
+    g.addColorStop(1,'rgba(0,0,0,0.22)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,width,height);
+  }
+
+  function loop(){
+    const fadeAlpha = UI_CONSTRAINTS.lowPower ? 0.18 : 0.10;
+    ctx.fillStyle = `rgba(0,0,0,${fadeAlpha})`;
+    ctx.fillRect(0,0,width,height);
+
+    ctx.font = fontSize + 'px monospace';
+    for(let i=0;i<drops.length;i++){
+      const x = i * fontSize;
+      const y = drops[i] * fontSize;
+
+      const char = chars.charAt(Math.floor(Math.random()*chars.length));
+      const colBright = (Math.sin(i * 0.6 + performance.now()*0.0006) + 1) * 0.35;
+      const dynamicAlpha = 0.15 + Math.random()*0.5;
+      const alpha = Math.min(1, dynamicAlpha * (0.5 + colBright));
+      const leading = Math.random() > 0.86;
+
+      if(leading){
+        ctx.fillStyle = `rgba(200,255,210,${0.7 + Math.random()*0.24})`;
+        ctx.fillText(char, x, y);
+        if(Math.random() > 0.96){
+          ctx.fillStyle = `rgba(0,255,106,${0.9})`;
+          ctx.fillText(char, x, y - fontSize * 0.12);
+        }
+      } else {
+        ctx.fillStyle = `rgba(0,255,106,${alpha})`;
+        ctx.fillText(char, x, y);
+      }
+
+      if(y > height && Math.random() > 0.975){
+        drops[i] = 0;
+      } else {
+        drops[i] = drops[i] + 1;
+      }
+    }
+
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = 'rgba(0,255,106,0.0025)';
+    ctx.fillRect(0,0,width,height);
+    ctx.globalCompositeOperation = 'source-over';
+
+    animationId = requestAnimationFrame(loop);
+  }
+
+  function start(){
+    if(running) return;
+    if(UI_CONSTRAINTS.reducedMotion || UI_CONSTRAINTS.lowPower){
+      drawStaticBackground();
+      running = false;
+      return;
+    }
+    running = true;
+    canvas.style.opacity = '1';
+    loop();
+  }
+
+  function stop(){
+    if(!running) {
+      drawStaticBackground();
+      return;
+    }
+    running = false;
+    if(animationId) cancelAnimationFrame(animationId);
+    animationId = null;
+    drawStaticBackground();
+  }
+
+  window.matrixController = {
+    start,
+    stop,
+    isRunning: ()=>running,
+    forceStart: ()=>{
+      if(!running){
+        running = true;
+        canvas.style.opacity = '1';
+        loop();
+      }
+    }
+  };
+
+  drawStaticBackground();
+})();
+
+/* Audio Player */
+(function audioPlayer(){
+  const audio = document.getElementById('bg-audio');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const volLabel = document.getElementById('volLabel');
+
+  const CANDIDATES = [
+    { url: 'https://r2.guns.lol/7fdd2ffd-dcaa-41d0-93b1-5e4bc914206d.mp3', type: 'audio/mpeg' },
+    { url: 'https://r2.guns.lol/97f40c6a-2261-4e77-8961-927cb56957e5.mp3', type: 'audio/mpeg' },
+  ];
+
+  let PLAY_MODE = 'playlist';
+  audio.loop = true;
+  audio.preload = 'auto';
+
+  function showToast(msg, t=2200){
+    let el = document.getElementById('bio-toast');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'bio-toast';
+      el.style.position='fixed';
+      el.style.bottom='32px';
+      el.style.left='50%';
+      el.style.transform='translateX(-50%)';
+      el.style.background='rgba(0,0,0,0.7)';
+      el.style.border='1px solid rgba(0,255,106,0.06)';
+      el.style.color='var(--neon)';
+      el.style.padding='8px 12px';
+      el.style.borderRadius='8px';
+      el.style.zIndex=9999;
+      el.style.fontFamily='monospace';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    setTimeout(()=> el.style.opacity = '0', t);
+  }
+
+  function setVolume(v){
+    audio.volume = v;
+    volLabel.textContent = Math.round(v*100) + '%';
+    audio.muted = false;
+  }
+  setVolume(parseFloat(volumeSlider.value || 0.32));
+  volumeSlider.addEventListener('input', e => setVolume(parseFloat(e.target.value)));
+
+  audio.addEventListener('error', () => { showToast('Audio error — check console', 2800); });
+  audio.addEventListener('stalled', ()=> console.warn('Audio stalled'));
+  audio.addEventListener('abort', ()=> console.warn('Audio aborted'));
+  audio.addEventListener('emptied', ()=> console.warn('Audio emptied'));
+
+  let playlist = [];
+  let currentIndex = 0;
+  let playlistMode = false;
+  let endedListener = null;
+
+  function mimeSupported(mime){
+    try {
+      const r = audio.canPlayType(mime);
+      return r === 'probably' || r === 'maybe';
+    } catch(e){
+      return false;
+    }
+  }
+
+  async function findAndLoadSources(){
+    const loaded = [];
+    for(const c of CANDIDATES){
+      if(!c || !c.url) continue;
+      if(!mimeSupported(c.type)){
+        continue;
+      }
+      let ok = true;
+      try {
+        const res = await fetch(c.url, { method: 'HEAD', cache: 'no-cache' });
+        if(!res.ok) ok = false;
+      } catch(err){}
+      if(!ok) continue;
+      loaded.push(c.url);
+    }
+    return loaded;
+  }
+
+  function setAudioSrc(url){
+    Array.from(audio.querySelectorAll('source')).forEach(s => s.remove());
+    audio.src = url;
+    try { audio.load(); } catch(e) { console.warn('audio.load() threw', e); }
+  }
+
+  function advanceIndex(){
+    if(playlist.length === 0) return;
+    currentIndex = (currentIndex + 1) % playlist.length;
+  }
+
+  function preparePlaylistEndedHandler(){
+    if(endedListener) {
+      audio.removeEventListener('ended', endedListener);
+      endedListener = null;
+    }
+    endedListener = async () => {
+      advanceIndex();
+      const next = playlist[currentIndex];
+      try {
+        setAudioSrc(next);
+        await audio.play();
+      } catch(err){
+        showToast('Playback error during playlist', 3000);
+      }
+    };
+    audio.addEventListener('ended', endedListener);
+  }
+
+  async function playFromUserGesture(){
+    try {
+      const chosen = await findAndLoadSources();
+      if(!chosen || chosen.length === 0){
+        showToast('No supported audio source found.', 3800);
+        return false;
+      }
+
+      if(PLAY_MODE === 'auto'){
+        playlistMode = chosen.length > 1;
+      } else {
+        playlistMode = (PLAY_MODE === 'playlist');
+      }
+
+      playlist = chosen.slice();
+      currentIndex = 0;
+
+      if(playlistMode){
+        const first = playlist[currentIndex];
+        setAudioSrc(first);
+        preparePlaylistEndedHandler();
+        audio.muted = false;
+        try {
+          await audio.play();
+          return true;
+        } catch(playErr){
+          showToast('Playback failed', 3800);
+          return false;
+        }
+      } else {
+        const first = playlist[0];
+        setAudioSrc(first);
+        if(endedListener){
+          audio.removeEventListener('ended', endedListener);
+          endedListener = null;
+        }
+        audio.muted = false;
+        try {
+          await audio.play();
+          return true;
+        } catch(playErr){
+          showToast('Playback failed', 3800);
+          return false;
+        }
+      }
+    } catch(err){
+      showToast('Playback error', 3800);
+      return false;
+    }
+  }
+
+  let audioUnlocked = false;
+  async function unlockAudioOnGesture(){
+    if(audioUnlocked) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC){ audioUnlocked = true; return; }
+      const ctx = new AC();
+      if(ctx.state === 'suspended') await ctx.resume();
+      const b = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = b;
+      src.connect(ctx.destination);
+      src.start(0);
+      audioUnlocked = true;
+    } catch(e){
+      audioUnlocked = true;
+    }
+  }
+  document.body.addEventListener('pointerdown', unlockAudioOnGesture, {once:true, passive:true});
+
+  window._bio_audio = audio;
+  window._bio_audio_findAndLoad = findAndLoadSources;
+  window._bio_audio_playFromUserGesture = playFromUserGesture;
+
+  document.body.addEventListener('click', async function onBodyClick(){
+    if(audio.paused && document.getElementById('loadingOverlay') && document.getElementById('loadingOverlay').classList.contains('hidden')){
+      try { await playFromUserGesture(); } catch(e){}
+    }
+  }, {passive:true});
+
+})();
+
+/* Copy Links */
+(function copyLinks(){
+  const linkTiles = $$('.link');
+  linkTiles.forEach(tile=>{
+    tile.addEventListener('contextmenu', e=>{
+      e.preventDefault();
+      const url = tile.dataset.copy || tile.href;
+      copyText(url);
+      showToast('Copied: ' + url);
+    });
+    tile.addEventListener('auxclick', e=>{
+      if(e.button === 1){
+        const url = tile.dataset.copy || tile.href;
+        copyText(url);
+        showToast('Copied: ' + url);
+      }
+    });
+  });
+
+  function copyText(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).catch(()=>{ fallbackCopy(text); });
+    } else { fallbackCopy(text); }
+  }
+  function fallbackCopy(text){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e){}
+    ta.remove();
+  }
+  let toastTimer = null;
+  function showToast(msg){
+    let t = document.getElementById('bio-toast');
+    if(!t){
+      t = document.createElement('div');
+      t.id = 'bio-toast';
+      t.style.position='fixed';
+      t.style.bottom='32px';
+      t.style.left='50%';
+      t.style.transform='translateX(-50%)';
+      t.style.background='rgba(0,0,0,0.7)';
+      t.style.border='1px solid rgba(0,255,106,0.06)';
+      t.style.color='var(--neon)';
+      t.style.padding='8px 12px';
+      t.style.borderRadius='8px';
+      t.style.zIndex=9999;
+      t.style.fontFamily='monospace';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{ t.style.opacity='0'; }, 1600);
+  }
+
+  const copyCard = document.getElementById('copyCard');
+  if(copyCard){
+    copyCard.addEventListener('click', e=>{
+      e.preventDefault();
+      const link = location.href;
+      copyText(link);
+      showToast('Profile link copied');
+    });
+  }
+})();
+
+/* Auto Loading Animation */
+(function autoLoad(){
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const loadingText = document.getElementById('loadingText');
+  const card = document.querySelector('.card');
+  const linkEls = Array.from(document.querySelectorAll('.link'));
+
+  // Fail-safe: Force remove overlay after 8s if something gets stuck
+  setTimeout(() => {
+    if(loadingOverlay && loadingOverlay.style.opacity !== '0') {
+      console.warn('Loading animation timed out, forcing reveal.');
+      finishLoading();
+    }
+  }, 8000);
+
+  function showToastInline(msg){
+    let t = document.getElementById('bio-toast');
+    if(!t){
+      t = document.createElement('div');
+      t.id = 'bio-toast';
+      t.style.position='fixed';
+      t.style.bottom='32px';
+      t.style.left='50%';
+      t.style.transform='translateX(-50%)';
+      t.style.background='rgba(0,0,0,0.7)';
+      t.style.border='1px solid rgba(0,255,106,0.06)';
+      t.style.color='var(--neon)';
+      t.style.padding='8px 12px';
+      t.style.borderRadius='8px';
+      t.style.zIndex=9999;
+      t.style.fontFamily='monospace';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    setTimeout(()=>{ t.style.opacity='0'; }, 2800);
+  }
+
+  function typeText(text, speed = 30) {
+    return new Promise((resolve) => {
+      let i = 0;
+      if(!loadingText) { resolve(); return; }
+      loadingText.innerHTML = '';
+      const cursor = '<span id="loadingCursor"></span>';
+      
+      function type() {
+        if (i < text.length) {
+          loadingText.innerHTML = text.substring(0, i + 1) + cursor;
+          i++;
+          setTimeout(type, speed + Math.random() * 15);
+        } else {
+          loadingText.innerHTML = text + cursor;
+          setTimeout(resolve, 150); // small pause at end of line
+        }
+      }
+      type();
+    });
+  }
+
+  function finishLoading() {
+    if(!loadingOverlay) return;
+    loadingOverlay.style.opacity = '0';
+    loadingOverlay.style.pointerEvents = 'none';
+    setTimeout(()=>{ loadingOverlay.classList.add('hidden'); }, 500);
+
+    // Start Matrix
+    if(window.matrixController){
+      if(!window.matrixController.isRunning()){
+        // Check constraints if they exist, otherwise assume safe to start
+        const canStart = (typeof UI_CONSTRAINTS !== 'undefined') 
+          ? (!UI_CONSTRAINTS.lowPower && !UI_CONSTRAINTS.reducedMotion) 
+          : true;
+          
+        if(canStart) window.matrixController.start();
+      }
+    }
+
+    // Reveal Content
+    if(card) card.classList.add('revealed');
+    if(linkEls) linkEls.forEach((el, idx)=>{
+      setTimeout(()=> el.classList.add('revealed'), 100 * idx);
+    });
+
+    // Start Audio
+    try {
+      if(window._bio_audio_playFromUserGesture){
+        // Attempt auto-play (might fail without interaction, but worth a try)
+        window._bio_audio_playFromUserGesture().then(ok => {
+          if(!ok) {
+            // Settle for click-to-play later
+            console.log('Audio requires interaction');
+          }
+        });
+      } else {
+        const audio = window._bio_audio || document.getElementById('bg-audio');
+        if(audio) audio.play().catch(e => console.log('Autoplay blocked', e));
+      }
+    } catch(e){
+      console.warn('Audio start failed', e);
+    }
+  }
+
+  async function startLoading() {
+    try {
+      const messages = [
+        '> Initializing...',
+        '> Accessing mainframe...',
+        '> Decrypting...',
+        '> Access Granted.'
+      ];
+
+      for (let i = 0; i < messages.length; i++) {
+        await typeText(messages[i], 25);
+      }
+      
+      finishLoading();
+    } catch(err) {
+      console.error('Loading animation error:', err);
+      finishLoading(); // Force finish on error
+    }
+  }
+
+  // Start immediately
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startLoading);
+  } else {
+    startLoading();
+  }
+
+  const rainToggle = document.getElementById('toggleRain');
+  if(rainToggle){
+    rainToggle.addEventListener('click', e=>{
+      e.preventDefault();
+      if(window.matrixController) {
+        if(window.matrixController.isRunning()){
+          window.matrixController.stop();
+        } else {
+          const force = (typeof UI_CONSTRAINTS !== 'undefined') 
+            ? (UI_CONSTRAINTS.lowPower || UI_CONSTRAINTS.reducedMotion)
+            : false;
+            
+          if(force){
+            window.matrixController.forceStart();
+            showToastInline('Matrix rain forced on.');
+          } else {
+            window.matrixController.start();
+          }
+        }
+      }
+    });
+  }
+})();
+
+/* Keyboard Quick Open */
+(function keyboardQuickOpen(){
+  window.addEventListener('keydown', e=>{
+    if(e.target && (e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA')) return;
+    const idx = parseInt(e.key,10);
+    if(!isNaN(idx) && idx >=1 && idx <=5){
+      const link = document.querySelectorAll('.link')[idx-1];
+      if(link){
+        window.open(link.href, '_blank', 'noopener');
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
