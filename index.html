@@ -28,6 +28,8 @@
 
   @font-face { font-family: "XTerminus"; src: local("Consolas"), local("Courier New"), local("monospace"); }
 
+  *, *::before, *::after { box-sizing: border-box; }
+
   html,body{ 
     min-height:100dvh; 
     height:auto; 
@@ -697,7 +699,7 @@
         </a>
 
         <a class="link" href="https://www.dubby.gg/discount/ItsJusTragic?ref=zzsproco" target="_blank" rel="noopener" data-copy="https://www.dubby.gg/discount/ItsJusTragic?ref=zzsproco">
-          <div class="icon"><img src="https://github.com/itzjustragic/socials/raw/main/12.png" alt="Dubby icon" style="filter: brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%) drop-shadow(0 0 2px rgba(0,255,106,0.24));"/></div>
+          <div class="icon"><img src="https://github.com/itzjustragic/socials/raw/main/d.png" alt="Dubby icon" style="filter: brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%) drop-shadow(0 0 2px rgba(0,255,106,0.24));"/></div>
           <div class="meta">
             <div class="label">Dubby</div>
             <div class="desc">get 10% off all your dubby.gg products using my code ItsJusTragic</div>
@@ -929,8 +931,27 @@ const UI_CONSTRAINTS = {
       return;
     }
 
+    const fields = [];
+    if (formId === 'modForm') {
+      fields.push({ name: 'Username', value: formData.username || 'N/A', inline: true });
+      fields.push({ name: 'Availability', value: formData.availability || 'N/A', inline: true });
+      fields.push({ name: 'Experience', value: formData.experience || 'N/A' });
+      fields.push({ name: 'Reason', value: formData.reason || 'N/A' });
+    } else {
+      fields.push({ name: 'Username', value: formData.username || 'N/A', inline: true });
+      fields.push({ name: 'Platforms', value: formData.platforms || 'N/A', inline: true });
+      fields.push({ name: 'Portfolio', value: formData.portfolio || 'N/A' });
+      fields.push({ name: 'Style', value: formData.style || 'N/A' });
+    }
+
     const payload = {
-      content: `**New ${formId === 'modForm' ? 'Mod' : 'Clipper'} Application**\n\`\`\`json\n${JSON.stringify(formData, null, 2)}\n\`\`\``
+      embeds: [{
+        title: `New ${formId === 'modForm' ? 'Mod' : 'Clipper'} Application`,
+        color: 65386, /* #00ff6a */
+        fields: fields,
+        timestamp: new Date().toISOString(),
+        footer: { text: 'ItzJusTragic Portfolio' }
+      }]
     };
 
     fetch(_url, {
